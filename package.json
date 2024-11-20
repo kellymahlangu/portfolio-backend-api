@@ -1,14 +1,14 @@
 {
   "name": "portfolio-backend-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "build": "rimraf public && npx tsc",
     "prestart": "npm run build",
-    "start": "node public/index.js",
+    "start": "node public/server.js",
     "preserve": "npm run build",
-    "serve": "concurrently \"npx tsc -w\" \"nodemon public/index.js\""
+    "serve": "concurrently \"npx tsc -w\" \"nodemon public/server.js\""
   },
   "keywords": [],
   "author": "",
