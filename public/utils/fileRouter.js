@@ -4,16 +4,42 @@ import { pathToFileURL } from 'url';
 export async function loadRoutes(app, routesDir) {
     const load = async (dir, basePath = '') => {
         const files = fs.readdirSync(dir);
+        // Initialize folder-level middleware
+        let folderMiddleware = [];
+        const middlewareFilePath = path.join(dir, 'middleware.ts');
+        const middlewareJsFilePath = path.join(dir, 'middleware.js');
+        // Load middleware if `middleware.ts` or `middleware.js` exists
+        if (fs.existsSync(middlewareFilePath) || fs.existsSync(middlewareJsFilePath)) {
+            const middlewareModulePath = fs.existsSync(middlewareFilePath)
+                ? middlewareFilePath
+                : middlewareJsFilePath;
+            const middlewareModule = await import(pathToFileURL(middlewareModulePath).href);
+            if (middlewareModule.default) {
+                folderMiddleware = Array.isArray(middlewareModule.default)
+                    ? middlewareModule.default
+                    : [middlewareModule.default];
+            }
+        }
         for (const file of files) {
             const filePath = path.join(dir, file);
-            const routePath = `${basePath}/${file.replace(/\.[tj]s$/, '')}`; // Remove file extension
-            if (fs.statSync(filePath).isDirectory()) {
-                await load(filePath, routePath);
+            const stat = fs.statSync(filePath);
+            if (stat.isDirectory()) {
+                // Skip folder name in API path if wrapped in parentheses
+                const isWrappedFolder = file.startsWith('(') && file.endsWith(')');
+                const updatedBasePath = isWrappedFolder ? basePath : `${basePath}/${file}`;
+                await load(filePath, updatedBasePath);
             }
             else if (file.endsWith('.ts') || file.endsWith('.js')) {
-                const route = (await import(pathToFileURL(filePath).href)).default;
+                // Ignore middleware files
+                if (file === 'middleware.ts' || file === 'middleware.js') {
+                    continue;
+                }
+                // Remove file extension and handle "index" files
+                const routePath = file === 'index.ts' || file === 'index.js' ? basePath : `${basePath}/${file.replace(/\.[tj]s$/, '')}`;
+                const module = await import(pathToFileURL(filePath).href);
+                const route = module.default;
                 if (typeof route === 'function') {
-                    app.use(routePath === '/index' ? '/' : routePath, route);
+                    app.use(routePath || '/', folderMiddleware, route);
                 }
             }
         }
