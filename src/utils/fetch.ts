@@ -69,7 +69,6 @@ export class Get {
     }
 
     async skills(): Promise<skillType | null> {
-        // const skills = await prisma.
         return null
     }
 }
