@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CATAGORY {
+  FRONTEND
+  BACKEND
+  TOOLS
+}
+
+enum SOCIAL {
+  INSTAGRAM
+  GITHUB
+  LINKEDIN
+  X
+}
+
+model Basic {
+  email String @id
+  firstName String
+  lastName String
+  contact String
+  occupation String
+  slogan String
+  title String
+  logo String
+  mainImg String
+}
+
+model About {
+  text1 String
+  text2 String
+  text3 String
+  img String
+  cv String
+  @@id([text1, text2, text3])
+}
+
+model Social {
+  name SOCIAL @id @default(GITHUB)
+  link String
+}
+
+model Catagory {
+  name CATAGORY @id @default(FRONTEND)
+  icon String
+  skills Skill[]
+}
+
+model Skill {
+  name String @id
+  level Int?
+  icon String
+
+  Catagory Catagory[]
+}
