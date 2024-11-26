@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
     if (data === null || data === undefined) {
         return res.json({status: 'error', data: null, code: 404});
     }
-    CacheUtil.put('about', data, 600000) // Cache for 1 hour
+    CacheUtil.put('about', data, 100000) // Cache for 10 mins
     return res.json({status: 'success', data: data, code: 200});
 });
 

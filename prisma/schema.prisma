@@ -27,41 +27,45 @@ enum SOCIAL {
 }
 
 model Basic {
-  email String @id
-  firstName String
-  lastName String
-  contact String
+  email      String @id
+  firstName  String
+  lastName   String
+  contact    String
   occupation String
-  slogan String
-  title String
-  logo String
-  mainImg String
+  slogan     String
+  title      String
+  logo       String
+  mainImg    String
 }
 
 model About {
   text1 String
   text2 String
   text3 String
-  img String
-  cv String
+  img   String
+  cv    String
+
   @@id([text1, text2, text3])
 }
 
 model Social {
-  name SOCIAL @id @default(GITHUB)
+  id   String @id @default(cuid())
+  name SOCIAL @unique
   link String
 }
 
-model Catagory {
-  name CATAGORY @id @default(FRONTEND)
-  icon String
-  skills Skill[]
+model Category {
+  id     String   @id @default(cuid())
+  name   CATAGORY @unique
+  icon   String
+  Skills Skill[]  @relation("SkillCategory")
 }
 
 model Skill {
-  name String @id
+  id    String @id @default(cuid())
+  name  String @unique
   level Int?
-  icon String
+  icon  String
 
-  Catagory Catagory[]
+  categories Category[] @relation("SkillCategory")
 }
